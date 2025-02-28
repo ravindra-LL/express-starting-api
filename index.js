@@ -1,14 +1,17 @@
-require('newrelic');
-const express = require('express');
-const cookieParser = require('cookie-parser');
-const dotenv = require('dotenv');
-const cors = require('cors');
+// Configure New Relic before requiring it
+process.env.NEW_RELIC_APP_NAME = "express-api"; // Set a default app name
+
+const express = require("express");
+const cookieParser = require("cookie-parser");
+const dotenv = require("dotenv");
+const cors = require("cors");
 dotenv.config();
 
+require("newrelic");
 const app = express();
-const { connectToMongo } = require('./db/mongo.connection');
+const { connectToMongo } = require("./db/mongo.connection");
 const port = process.env.PORT || 5000;
-const authRouter = require('./routers/auth.router');
+const authRouter = require("./routers/auth.router");
 
 connectToMongo();
 
@@ -21,14 +24,13 @@ app.use(express.urlencoded({ extended: true })); // Changed extended to true to 
 app.use(cookieParser());
 app.use("/api/auth", authRouter);
 
-
-
-app.get('/', (req, res) => {
-    res.status(200).send({
-        message: 'Express js Backend API Starting Template Developed by Ravindra Valand'
-    });
+app.get("/", (req, res) => {
+  res.status(200).send({
+    message:
+      "Express js Backend API Starting Template Developed by Ravindra Valand",
+  });
 });
 
 app.listen(port, () => {
-    console.log(`Server is running on port http://localhost:${port}`);
+  console.log(`Server is running on port http://localhost:${port}`);
 });
