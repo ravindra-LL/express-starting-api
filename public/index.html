@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Performance Monitor</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .card {
+        transition: transform 0.2s;
+        margin-bottom: 20px;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+      .results {
+        max-height: 200px;
+        overflow-y: auto;
+      }
+      .loading {
+        display: none;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <nav class="navbar navbar-dark bg-primary mb-4">
+      <div class="container">
+        <span class="navbar-brand mb-0 h1">API Performance Monitor</span>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="row">
+        <!-- CPU Intensive Operation -->
+        <div class="col-md-6 col-lg-3">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">CPU Test</h5>
+              <p class="card-text">Test CPU-intensive operations</p>
+              <button onclick="testCPU()" class="btn btn-primary">
+                Run Test
+                <span id="cpuLoading" class="loading">⚡</span>
+              </button>
+              <div id="cpuResults" class="results mt-3 small"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Memory Intensive Operation -->
+        <div class="col-md-6 col-lg-3">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Memory Test</h5>
+              <p class="card-text">Test memory-intensive operations</p>
+              <button onclick="testMemory()" class="btn btn-success">
+                Run Test
+                <span id="memoryLoading" class="loading">⚡</span>
+              </button>
+              <div id="memoryResults" class="results mt-3 small"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Data Processing -->
+        <div class="col-md-6 col-lg-3">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Data Processing</h5>
+              <p class="card-text">Test data processing capabilities</p>
+              <button onclick="testDataProcessing()" class="btn btn-warning">
+                Process Data
+                <span id="dataLoading" class="loading">⚡</span>
+              </button>
+              <div id="dataResults" class="results mt-3 small"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error Simulation -->
+        <div class="col-md-6 col-lg-3">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Error Test</h5>
+              <p class="card-text">Simulate error handling</p>
+              <button onclick="testError()" class="btn btn-danger">
+                Simulate Error
+                <span id="errorLoading" class="loading">⚡</span>
+              </button>
+              <div id="errorResults" class="results mt-3 small"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function showLoading(id) {
+        document.getElementById(`${id}Loading`).style.display = "inline-block";
+      }
+
+      function hideLoading(id) {
+        document.getElementById(`${id}Loading`).style.display = "none";
+      }
+
+      function addResult(id, result) {
+        const resultDiv = document.getElementById(`${id}Results`);
+        const time = new Date().toLocaleTimeString();
+        resultDiv.innerHTML =
+          `<div class="text-muted">[${time}] ${JSON.stringify(result)}</div>` +
+          resultDiv.innerHTML;
+      }
+
+      async function testCPU() {
+        showLoading("cpu");
+        try {
+          const start = performance.now();
+          const response = await fetch("/api/cpu-intensive");
+          const data = await response.json();
+          const duration = (performance.now() - start).toFixed(2);
+          addResult(
+            "cpu",
+            `Duration: ${duration}ms, Result: ${data.result.toFixed(2)}`
+          );
+        } catch (error) {
+          addResult("cpu", `Error: ${error.message}`);
+        }
+        hideLoading("cpu");
+      }
+
+      async function testMemory() {
+        showLoading("memory");
+        try {
+          const start = performance.now();
+          const response = await fetch("/api/memory-intensive");
+          const data = await response.json();
+          const duration = (performance.now() - start).toFixed(2);
+          addResult(
+            "memory",
+            `Duration: ${duration}ms, Array Length: ${data.arrayLength}`
+          );
+        } catch (error) {
+          addResult("memory", `Error: ${error.message}`);
+        }
+        hideLoading("memory");
+      }
+
+      async function testDataProcessing() {
+        showLoading("data");
+        try {
+          const testData = {
+            name: "Test User",
+            timestamp: new Date().toISOString(),
+            values: Array.from({ length: 100 }, (_, i) => i),
+          };
+          const start = performance.now();
+          const response = await fetch("/api/data-processing", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(testData),
+          });
+          const data = await response.json();
+          const duration = (performance.now() - start).toFixed(2);
+          addResult(
+            "data",
+            `Duration: ${duration}ms, Processed Size: ${data.dataSize} bytes`
+          );
+        } catch (error) {
+          addResult("data", `Error: ${error.message}`);
+        }
+        hideLoading("data");
+      }
+
+      async function testError() {
+        showLoading("error");
+        try {
+          const start = performance.now();
+          const response = await fetch("/api/simulate-error");
+          const data = await response.json();
+          const duration = (performance.now() - start).toFixed(2);
+          addResult("error", `Duration: ${duration}ms, Error: ${data.error}`);
+        } catch (error) {
+          addResult("error", `Error: ${error.message}`);
+        }
+        hideLoading("error");
+      }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
