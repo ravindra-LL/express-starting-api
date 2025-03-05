@@ -20,7 +20,7 @@ connectToMongo();
 app.use(cors());
 
 // Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
 // Ensure express.json() middleware is used before any router to parse JSON bodies
 app.use(express.json());
@@ -30,14 +30,14 @@ app.use("/api/auth", authRouter);
 
 // Serve HTML page
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 // API endpoints for monitoring
 app.get("/api/cpu-intensive", (req, res) => {
   // Simulate CPU-intensive operation
   let result = 0;
-  for(let i = 0; i < 1000000; i++) {
+  for (let i = 0; i < 1000000; i++) {
     result += Math.random() * Math.sqrt(i);
   }
   res.json({ result });
@@ -45,7 +45,7 @@ app.get("/api/cpu-intensive", (req, res) => {
 
 app.get("/api/memory-intensive", (req, res) => {
   // Simulate memory-intensive operation
-  const largeArray = new Array(1000000).fill('test data');
+  const largeArray = new Array(1000000).fill("test data");
   res.json({ arrayLength: largeArray.length });
 });
 
@@ -55,7 +55,7 @@ app.post("/api/data-processing", (req, res) => {
   const processedData = {
     receivedAt: new Date(),
     processedFields: Object.keys(data),
-    dataSize: JSON.stringify(data).length
+    dataSize: JSON.stringify(data).length,
   };
   res.json(processedData);
 });
