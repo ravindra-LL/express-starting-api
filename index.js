@@ -62,7 +62,7 @@ app.post("/api/data-processing", (req, res) => {
 });
 
 app.post("/api/webhook", (req, res) => {
-  console.log(JSON.stringify(req.body));
+  console.log(JSON.stringify(req.body, null, 2));
   res.status(200).json({ message: "Webhook received" });
 });
 
