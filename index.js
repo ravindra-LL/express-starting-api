@@ -6,6 +6,7 @@ const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const path = require("path");
+const bcrypt = require("bcrypt");
 dotenv.config();
 
 require("newrelic");
@@ -20,7 +21,7 @@ connectToMongo();
 app.use(cors());
 
 // Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
 // Ensure express.json() middleware is used before any router to parse JSON bodies
 app.use(express.json());
@@ -30,14 +31,14 @@ app.use("/api/auth", authRouter);
 
 // Serve HTML page
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 // API endpoints for monitoring
 app.get("/api/cpu-intensive", (req, res) => {
   // Simulate CPU-intensive operation
   let result = 0;
-  for(let i = 0; i < 1000000; i++) {
+  for (let i = 0; i < 1000000; i++) {
     result += Math.random() * Math.sqrt(i);
   }
   res.json({ result });
@@ -45,7 +46,7 @@ app.get("/api/cpu-intensive", (req, res) => {
 
 app.get("/api/memory-intensive", (req, res) => {
   // Simulate memory-intensive operation
-  const largeArray = new Array(1000000).fill('test data');
+  const largeArray = new Array(1000000).fill("test data");
   res.json({ arrayLength: largeArray.length });
 });
 
@@ -55,9 +56,14 @@ app.post("/api/data-processing", (req, res) => {
   const processedData = {
     receivedAt: new Date(),
     processedFields: Object.keys(data),
-    dataSize: JSON.stringify(data).length
+    dataSize: JSON.stringify(data).length,
   };
   res.json(processedData);
+});
+
+app.post("/api/webhook", (req, res) => {
+  console.log(JSON.stringify(req.body));
+  res.status(200).json({ message: "Webhook received" });
 });
 
 // Error simulation endpoint
@@ -66,6 +72,23 @@ app.get("/api/simulate-error", (req, res) => {
     throw new Error("Simulated error for monitoring");
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// Encrypt password endpoint
+app.post("/api/encrypt-password", async (req, res) => {
+  try {
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash("Leo@2025", salt);
+
+    res.json({
+      hashedPassword,
+    });
+  } catch (error) {
+    console.error("Error encrypting password:", error);
+    res.status(500).json({
+      error: error.message,
+    });
   }
 });
 
